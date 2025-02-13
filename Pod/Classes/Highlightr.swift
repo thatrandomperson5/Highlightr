@@ -33,7 +33,7 @@ open class Highlightr
 
     private let hljs: JSValue
 
-    private let bundle : Bundle
+    private let resourceURL : URL
     private let htmlStart = "<"
     private let spanStart = "span class=\""
     private let spanStartClose = "\">"
@@ -47,7 +47,7 @@ open class Highlightr
 
      - returns: Highlightr instance.
      */
-    public init?(highlightPath: String? = nil)
+    public init?(resourceURL: URL? = nil)
     {
         let jsContext = JSContext()!
         let window = JSValue(newObjectIn: jsContext)
@@ -57,13 +57,13 @@ open class Highlightr
         #else
         let bundle = Bundle(for: Highlightr.self)
         #endif
-        self.bundle = bundle
-        guard let hgPath = highlightPath ?? bundle.path(forResource: "highlight.min", ofType: "js") else
+        self.resourceURL = resourceURL == nil ? bundle.bundleURL : resourceURL!
+        guard let hgPath = self.resourceURL.bundleLikeURL(forResource: "highlight.min", withExtension: "js") else
         {
             return nil
         }
         
-        let hgJs = try! String.init(contentsOfFile: hgPath)
+        let hgJs = try! String.init(contentsOf: hgPath)
         let value = jsContext.evaluateScript(hgJs)
         guard let hljs = jsContext.objectForKeyedSubscript("hljs") else { return nil }
 
@@ -86,11 +86,11 @@ open class Highlightr
     @discardableResult
     open func setTheme(to name: String) -> Bool
     {
-        guard let defTheme = bundle.path(forResource: name+".min", ofType: "css") else
+        guard let defTheme = self.resourceURL.bundleLikeURL(forResource: name+".min", withExtension: "css") else
         {
             return false
         }
-        let themeString = try! String.init(contentsOfFile: defTheme)
+        let themeString = try! String.init(contentsOf: defTheme)
         theme =  Theme(themeString: themeString)
 
         
@@ -158,6 +158,7 @@ open class Highlightr
      */
     open func availableThemes() -> [String]
     {
+	    /*
         let paths = bundle.paths(forResourcesOfType: "css", inDirectory: nil) as [NSString]
         var result = [String]()
         for path in paths {
@@ -165,6 +166,8 @@ open class Highlightr
         }
         
         return result
+		*/
+		return []
     }
     
     /**
