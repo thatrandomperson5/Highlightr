@@ -8,12 +8,9 @@ extension URL {
             self.appendingPathComponent(forResource).appendingPathExtension(withExtension ?? "")
         }
         
-        let path = if #available(iOS 16.0, *) {
-            url.path()
-        } else {
-            url.path
-        }
-        guard FileManager.default.fileExists(atPath: path) else {
+        let files = try? FileManager.default.contentsOfDirectory(at: self, includingPropertiesForKeys: nil)
+        
+        guard files?.contains(url) ?? false else {
             return nil
         }
         return url
