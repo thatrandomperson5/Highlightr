@@ -7,7 +7,13 @@ extension URL {
         } else {
             self.appendingPathComponent(forResource).appendingPathExtension(withExtension ?? "")
         }
-        guard FileManager.default.fileExists(atPath: url.path()) else {
+        
+        let path = if #available(iOS 16.0, *) {
+            url.path()
+        } else {
+            url.path
+        }
+        guard FileManager.default.fileExists(atPath: path) else {
             return nil
         }
         return url
